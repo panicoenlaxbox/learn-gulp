@@ -16,15 +16,19 @@ var sourcemaps = require('gulp-sourcemaps');
 var tsify = require("tsify");
 var uglify = require("gulp-uglify");
 
+function logError(err) {
+    gutil.log(gutil.colors.red(err.message))
+}
+
 gulp.task("browserify:app", function () {
     del.sync("src/bundles/app*.js*");
-    return browserify("src/main.ts", {
+    return bundle("src/main.ts", {
             debug: true
         }).external("vue")
         .plugin(tsify)
         .bundle()
         .on("error", function (err) {
-            gutil.log("browserify:app", gutil.colors.red(err.message))
+            logError(err);
         })
         .pipe(source("app.js"))
         .pipe(buffer())
@@ -43,7 +47,7 @@ gulp.task("browserify:vendor", function () {
     return browserify().require("vue")
         .bundle()
         .on("error", function (err) {
-            gutil.log("browserify:vendor", gutil.colors.red(err.message))
+            logError(err);
         })
         .pipe(source("vendor.js"))
         .pipe(buffer())
