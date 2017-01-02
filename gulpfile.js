@@ -23,10 +23,9 @@ var util = require("util");
 
 var b;
 var watch = false;
-var environment = process.env.NODE_ENV || "development";
-var production = environment === "production";
+var production = process.env.NODE_ENV === "production";
 
-function configureBundle() {
+function bundle() {
     var options = {
         debug: true,
         plugin: [tsify]
@@ -40,17 +39,17 @@ function configureBundle() {
             plugin: [tsify, watchify]
         });
         b = watchify(browserify(file, options));
-        b.on("update", bundle);
+        b.on("update", _bundle);
         b.on("log", gutil.log);
     }
     b.external("vue");
-    gutil.log("configureBundle ", gutil.colors.yellow(util.inspect(options, {
+    gutil.log("bundle ", gutil.colors.yellow(util.inspect(options, {
         depth: null
     })));
-    return bundle();
+    return _bundle();
 }
 
-function bundle() {
+function _bundle() {
     return b
         .bundle()
         .on("error", function (err) {
@@ -70,10 +69,8 @@ function bundle() {
 
 gulp.task("browserify:app", function () {
     del.sync("src/bundles/app*.js");
-    if (!production) {
-        watch = true;
-    }
-    return configureBundle();
+    watch = !production;
+    return bundle();
 });
 
 gulp.task("browserify:vendor", function () {
