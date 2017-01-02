@@ -19,32 +19,34 @@ var watchify = require("watchify");
 var assign = require("lodash.assign");
 var gulpif = require("gulp-if");
 var util = require("util");
+var babelify = require("babelify");
 
 var b;
 var watch = false;
 var production = process.env.NODE_ENV === "production";
 
 function bundle() {
-    var options = {
-        debug: true,
-        plugin: [tsify]
-    };
-    var file = "src/ts/main.ts";
-    b = browserify(file, options);
+    var file = "src/js/main.js";
+    b = browserify(file, {
+        debug: true
+    });
     if (watch) {
-        options = assign({}, {
+        var options = assign({}, {
+            debug: true,
             cache: {},
             packageCache: {},
-            plugin: [tsify, watchify]
+            plugin: [watchify]
         });
         b = watchify(browserify(file, options));
         b.on("update", _bundle);
         b.on("log", gutil.log);
     }
-    b.external("vue");
-    gutil.log("bundle ", gutil.colors.yellow(util.inspect(options, {
-        depth: null
-    })));
+    b
+        .transform("babelify", {
+            presets: ["es2015"]
+        })
+        .external("angular")
+        .external("jquery");
     return _bundle();
 }
 
@@ -68,13 +70,14 @@ function _bundle() {
 
 gulp.task("browserify:app", function () {
     del.sync("src/bundles/app*.js");
-    watch = !production;
     return bundle();
 });
 
 gulp.task("browserify:vendor", function () {
     del.sync("src/bundles/vendor*.js");
-    return browserify().require("vue")
+    return browserify()
+        .require("angular")
+        .require("jquery")
         .bundle()
         .on("error", function (err) {
             gutil.log("browserify:vendor", gutil.colors.red(err.message));
@@ -106,6 +109,7 @@ gulp.task("serve", function () {
 });
 
 gulp.task("dev", function (cb) {
+    watch = true;
     runSequence(
         "browserify",
         "inject",

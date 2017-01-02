@@ -2,7 +2,7 @@ function foo() {
     return "bar";
 }
 class Point {
-    constructor(public x, public y) {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
     }
@@ -10,7 +10,5 @@ class Point {
         return '(' + this.x + ', ' + this.y + ')';
     }
 }
-export {
-    foo,
-    Point
-};
+exports.foo = foo;
+exports.Point = Point;
