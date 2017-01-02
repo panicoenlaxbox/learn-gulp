@@ -10,5 +10,7 @@ class Point {
         return '(' + this.x + ', ' + this.y + ')';
     }
 }
-exports.foo = foo;
-exports.Point = Point;
+export {
+    foo,
+    Point
+};
