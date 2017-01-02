@@ -1,6 +1,5 @@
 var browserify = require("browserify");
 var buffer = require("vinyl-buffer");
-var clean = require("gulp-clean");
 var del = require("del");
 var gulp = require("gulp");
 var gutil = require("gulp-util");
